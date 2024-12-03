@@ -33,9 +33,6 @@ func parse(lines []string) lists {
 		}
 	}
 
-	fmt.Println(left_list)
-	fmt.Println(right_list)
-
 	return lists{left_list, right_list}
 }
 
@@ -55,7 +52,7 @@ func day1_1(input lists) {
 		sum += utils.Abs(left_list[i] - right_list[i])
 	}
 
-	fmt.Println(sum)
+	fmt.Println("Part 1 :", sum)
 }
 
 func day1_2(input lists) {
@@ -82,7 +79,7 @@ func day1_2(input lists) {
 		}
 	}
 
-	fmt.Println(sum)
+	fmt.Println("Part 2 :", sum)
 }
 
 func Day1(justATest bool) {
