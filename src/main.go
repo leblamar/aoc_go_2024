@@ -3,6 +3,7 @@ package main
 import (
 	"aoc_go_2024/src/day1"
 	"aoc_go_2024/src/day2"
+	"aoc_go_2024/src/day3"
 	"log"
 	"os"
 	"strconv"
@@ -26,15 +27,17 @@ func main() {
 		}
 	}
 
-	just_a_test := false
+	justATest := false
 	if len(args) == 3 && args[2] == "test" {
-		just_a_test = true
+		justATest = true
 	}
 
 	switch day {
 	case 1:
-		day1.Day1(just_a_test)
+		day1.Day1(justATest)
 	case 2:
-		day2.Day2(just_a_test)
+		day2.Day2(justATest)
+	case 3:
+		day3.Day3(justATest)
 	}
 }
