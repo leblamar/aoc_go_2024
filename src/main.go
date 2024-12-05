@@ -5,6 +5,7 @@ import (
 	"aoc_go_2024/src/day2"
 	"aoc_go_2024/src/day3"
 	"aoc_go_2024/src/day4"
+	"aoc_go_2024/src/day5"
 	"log"
 	"os"
 	"strconv"
@@ -44,5 +45,7 @@ func main() {
 		day3.Day3(justATest)
 	case 4:
 		day4.Day4(justATest)
+	case 5:
+		day5.Day5(justATest)
 	}
 }
