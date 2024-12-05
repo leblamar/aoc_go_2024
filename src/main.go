@@ -18,6 +18,8 @@ func main() {
 	if len(args) == 1 {
 		day1.Day1(false)
 		day2.Day2(false)
+		day3.Day3(false)
+		day4.Day4(false)
 		return
 	} else if len(args) > 1 {
 		day, err = strconv.Atoi(args[1])

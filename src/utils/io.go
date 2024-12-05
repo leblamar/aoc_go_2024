@@ -12,7 +12,7 @@ import (
 )
 
 func getTestFilePath(day uint) string {
-	relative_path := fmt.Sprintf("src/day%d/day%d_example.txt", day, day)
+	relative_path := fmt.Sprintf("day%d/day%d_example.txt", day, day)
 	absPath, err := filepath.Abs(relative_path)
 	if err != nil {
 		log.Fatal(err)
@@ -21,7 +21,7 @@ func getTestFilePath(day uint) string {
 }
 
 func getInputFilePath(day uint) string {
-	relative_path := fmt.Sprintf("src/day%d/day%d_input.txt", day, day)
+	relative_path := fmt.Sprintf("day%d/day%d_input.txt", day, day)
 	absPath, err := filepath.Abs(relative_path)
 	if err != nil {
 		log.Fatal(err)

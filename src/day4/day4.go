@@ -101,8 +101,57 @@ func day4_1(input [][]rune) {
 	fmt.Println("Part 1 :", ctx.count)
 }
 
+func xmasOposite(a, b rune) bool {
+	if a == rune('M') {
+		return b == rune('S')
+	} else if a == rune('S') {
+		return b == rune('M')
+	} else {
+		return false
+	}
+}
+
 func day4_2(input [][]rune) {
-	fmt.Println("Part 2 :")
+	aRune := rune('A')
+	count := 0
+	leftUpDir, rightDownPt := pt{-1, -1}, pt{1, 1}
+	leftDownDir, rightUpPt := pt{1, -1}, pt{-1, 1}
+	for i, row := range input {
+		for j, car := range row {
+			if car != aRune {
+				continue
+			}
+
+			xPt := pt{i, j}
+
+			leftUpPt := xPt.add(leftUpDir)
+			letter1, err := leftUpPt.getRune(input)
+			if err != nil {
+				continue
+			}
+
+			rightDownPt := xPt.add(rightDownPt)
+			letter2, err2 := rightDownPt.getRune(input)
+			if err2 != nil || !xmasOposite(letter1, letter2) {
+				continue
+			}
+
+			leftDownPt := xPt.add(leftDownDir)
+			letter1, err = leftDownPt.getRune(input)
+			if err != nil {
+				continue
+			}
+
+			rightUpPt := xPt.add(rightUpPt)
+			letter2, err2 = rightUpPt.getRune(input)
+			if err2 != nil || !xmasOposite(letter1, letter2) {
+				continue
+			}
+
+			count += 1
+		}
+	}
+	fmt.Println("Part 2 :", count)
 }
 
 func Day4(justATest bool) {
