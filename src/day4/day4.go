@@ -37,17 +37,14 @@ func (ctx *xmas) cur() rune {
 }
 
 func (ctx *xmas) advance(car rune) bool {
-	//fmt.Println("car:", string(car))
-	//fmt.Println("ctx:", ctx)
 	if ctx.cur() != car {
-		//fmt.Println("cur:", string(ctx.cur()))
 		ctx.reset()
 		return false
 	}
 
 	ctx.step += 1
 
-	if ctx.step == len(ctx.chain)-1 {
+	if ctx.step == len(ctx.chain) {
 		ctx.count += 1
 		ctx.reset()
 		return false
@@ -67,27 +64,17 @@ func (cur pt) add(other pt) pt {
 
 func (cur pt) getRune(input [][]rune) (rune, error) {
 	if cur.x < 0 || len(input) <= cur.x || cur.y < 0 || len(input[0]) <= cur.y {
-		//fmt.Println("err")
-		//fmt.Println(cur.x < 0)
-		//fmt.Println(len(input)-1 <= cur.x)
-		//fmt.Println(cur.y < 0)
-		//fmt.Println(len(input[0])-1 < cur.y)
 		return rune(0), errors.New("not in matrix")
 	}
-	//fmt.Println("curPt:", cur)
 	return input[cur.x][cur.y], nil
 }
 
 func day4_1(input [][]rune) {
 	ctx := xmas{0, "XMAS", 0}
-
-	//directions := []pt{{-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}}
-	directions := []pt{{0, 1}}
+	directions := []pt{{-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}}
 
 	for i, row := range input {
-		//fmt.Println()
 		for j, car := range row {
-			//fmt.Print(string(car), " ")
 			ctx.reset()
 			found_x := ctx.advance(car)
 
@@ -95,19 +82,15 @@ func day4_1(input [][]rune) {
 				continue
 			}
 
-			//fmt.Println("Found x :", j)
-
 			xPt := pt{i, j}
 			for _, curDir := range directions {
 				ctx.reset()
 				ctx.advance(car)
 
 				curPt := xPt.add(curDir)
-				//fmt.Println(curPt)
 				curRune, err := curPt.getRune(input)
 				for err == nil && ctx.advance(curRune) {
 					curPt = curPt.add(curDir)
-					//fmt.Println(curPt)
 					curRune, err = curPt.getRune(input)
 				}
 			}
