@@ -6,6 +6,7 @@ import (
 	"aoc_go_2024/src/day3"
 	"aoc_go_2024/src/day4"
 	"aoc_go_2024/src/day5"
+	"aoc_go_2024/src/day6"
 	"log"
 	"os"
 	"strconv"
@@ -32,8 +33,15 @@ func main() {
 	}
 
 	justATest := false
-	if len(args) == 3 && args[2] == "test" {
-		justATest = true
+	debug := false
+	if len(args) >= 3 {
+		for _, arg := range args {
+			if arg == "-t" {
+				justATest = true
+			} else if arg == "-d" {
+				debug = true
+			}
+		}
 	}
 
 	switch day {
@@ -47,5 +55,7 @@ func main() {
 		day4.Day4(justATest)
 	case 5:
 		day5.Day5(justATest)
+	case 6:
+		day6.Day6(justATest, debug)
 	}
 }
