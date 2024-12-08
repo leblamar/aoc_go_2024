@@ -25,7 +25,7 @@ func main() {
 		day4.Day4(false)
 		day5.Day5(false)
 		day6.Day6(false, false)
-		day7.Day7(false)
+		day7.Day7(false, false)
 		return
 	} else if len(args) > 1 {
 		day, err = strconv.Atoi(args[1])
@@ -62,6 +62,6 @@ func main() {
 	case 6:
 		day6.Day6(justATest, debug)
 	case 7:
-		day7.Day7(justATest)
+		day7.Day7(justATest, debug)
 	}
 }

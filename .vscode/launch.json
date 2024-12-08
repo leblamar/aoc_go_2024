@@ -11,9 +11,9 @@
             "mode": "debug",
             "program": "${workspaceFolder}/src/main.go",
             //"args": ["7", "-t", "-d"]
-            "args": ["7", "-t"]
+            //"args": ["7", "-t"]
             //"args": ["7", "-d"]
-            //"args": ["7"]
+            "args": ["7"]
         }
     ]
 }
