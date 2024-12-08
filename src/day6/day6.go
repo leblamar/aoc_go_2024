@@ -38,9 +38,11 @@ type player struct {
 }
 
 type program struct {
-	m     labMap
-	pl    player
-	count int
+	m       labMap
+	initPl  player
+	pl      player
+	count   int
+	loopMap map[player]bool
 }
 
 type status int
@@ -94,7 +96,7 @@ func parse(lines []string) program {
 		m = append(m, mRow)
 	}
 
-	return program{m, p, 1}
+	return program{m, p, p, 1, make(map[player]bool)}
 }
 
 func (pg program) String() string {
@@ -139,8 +141,21 @@ func (pg *program) insideBoundaries(pos position) bool {
 	return pos.x >= 0 && pos.y >= 0 && pos.x < len(pg.m) && pos.y < len(pg.m[0])
 }
 
+func (pg *program) isLoopingAndMarkIt() bool {
+	if pg.loopMap[pg.pl] {
+		return true
+	} else {
+		pg.loopMap[pg.pl] = true
+		return false
+	}
+}
+
 // Return true if is finished
 func (pg *program) move() status {
+	if pg.isLoopingAndMarkIt() {
+		return Looping
+	}
+
 	nextPos := pg.pl.getNextPos()
 	if !pg.insideBoundaries(nextPos) {
 		return Finished
@@ -159,11 +174,12 @@ func (pg *program) move() status {
 }
 
 func (pg program) testRun(withPrint bool) (int, status) {
+	pg.reset()
 	if withPrint {
 		fmt.Println(pg)
 	}
 	var st status = Running
-	for st != Finished {
+	for st == Running {
 		if withPrint {
 			time.Sleep(10 * time.Millisecond)
 			fmt.Println(pg)
@@ -179,8 +195,51 @@ func (pg program) day6_1(withPrint bool) {
 	fmt.Println("Part 1:", count)
 }
 
+func (pg program) getPosToTestList() []position {
+	pg.testRun(false)
+	posToTestList := make([]position, 0)
+	for i, row := range pg.m {
+		for j, car := range row {
+			if car == Visited {
+				posToTestList = append(posToTestList, position{i, j})
+			}
+		}
+	}
+
+	return posToTestList
+}
+
+func (pg *program) reset() {
+	pg.pl = pg.initPl
+	for i, row := range pg.m {
+		for j, car := range row {
+			if pg.initPl.pos.x == i && pg.initPl.pos.y == j {
+				continue
+			}
+
+			if car == Visited {
+				pg.m[i][j] = NotVisited
+			}
+		}
+	}
+	pg.loopMap = make(map[player]bool)
+}
+
 func (pg program) day6_2() {
-	fmt.Println("Part 2:")
+	posToTestList := pg.getPosToTestList()
+
+	countLoop := 0
+	for _, posToTest := range posToTestList {
+		pg.m[posToTest.x][posToTest.y] = Block
+
+		_, s := pg.testRun(false)
+		if s == Looping {
+			countLoop += 1
+		}
+
+		pg.m[posToTest.x][posToTest.y] = NotVisited
+	}
+	fmt.Println("Part 2:", countLoop)
 }
 
 func Day6(justATest, debug bool) {
