@@ -86,15 +86,15 @@ func (eq equation) isResolvable(nextIdx int, accValue int64) bool {
 	return false
 }
 
-func sumCorrectEquations(equations []equation, potentialOps []operation, debug bool) (sum int64) {
+func sumCorrectEquations(equations []equation, potentialOps []operation, isDebug bool) (sum int64) {
 	sum = 0
 	for i, eq := range equations {
 		eq.potentialOps = potentialOps
-		if debug {
+		if isDebug {
 			fmt.Println("[", i, "/", len(equations), "]", "New eq:", eq)
 		}
 		if eq.isResolvable(1, eq.values[0]) {
-			if debug {
+			if isDebug {
 				fmt.Println("It is resolvable!!")
 			}
 			sum += eq.testValue
@@ -104,24 +104,24 @@ func sumCorrectEquations(equations []equation, potentialOps []operation, debug b
 	return
 }
 
-func day7_1(equations []equation, debug bool) {
+func day7_1(equations []equation, isDebug bool) {
 	potentialOps := []operation{Add, Mul}
-	res := sumCorrectEquations(equations, potentialOps, debug)
+	res := sumCorrectEquations(equations, potentialOps, isDebug)
 	fmt.Println("Part 1:", res)
 }
 
-func day7_2(equations []equation, debug bool) {
+func day7_2(equations []equation, isDebug bool) {
 	potentialOps := []operation{Add, Mul, Concat}
-	res := sumCorrectEquations(equations, potentialOps, debug)
+	res := sumCorrectEquations(equations, potentialOps, isDebug)
 	fmt.Println("Part 2:", res)
 }
 
-func Day7(justATest, debug bool) {
+func Day7(isTest, isDebug bool) {
 	fmt.Println("Welcome to day 7!!!")
 
-	lines := utils.GetLines(justATest, 7)
+	lines := utils.GetLines(isTest, 7)
 	equations := parse(lines)
 
-	day7_1(equations, debug)
-	day7_2(equations, debug)
+	day7_1(equations, isDebug)
+	day7_2(equations, isDebug)
 }
