@@ -9,6 +9,7 @@ import (
 	"aoc_go_2024/src/day6"
 	"aoc_go_2024/src/day7"
 	"aoc_go_2024/src/day8"
+	"aoc_go_2024/src/day9"
 	"log"
 	"os"
 	"strconv"
@@ -28,6 +29,7 @@ func main() {
 		day6.Day6(false, false)
 		day7.Day7(false, false)
 		day8.Day8(false)
+		day9.Day9(false, false)
 		return
 	} else if len(args) > 1 {
 		day, err = strconv.Atoi(args[1])
@@ -67,5 +69,7 @@ func main() {
 		day7.Day7(justATest, debug)
 	case 8:
 		day8.Day8(justATest)
+	case 9:
+		day9.Day9(justATest, debug)
 	}
 }

@@ -10,10 +10,10 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/src/main.go",
-            //"args": ["8", "-t", "-d"]
-            //"args": ["8", "-t"]
-            //"args": ["8", "-d"]
-            "args": ["8"]
+            //"args": ["9", "-t", "-d"]
+            //"args": ["9", "-t"]
+            //"args": ["9", "-d"]
+            "args": ["9"]
         }
     ]
 }
