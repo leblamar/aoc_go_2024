@@ -9,10 +9,10 @@ type Position struct {
 
 // Find symetric of position
 func (p1 Position) Sym(p2 Position) Position {
-	xDist := p1.X - p2.X
-	yDist := p1.Y - p2.Y
-	newX := p1.X + xDist
-	newY := p1.Y + yDist
+	xDist := p2.X - p1.X
+	yDist := p2.Y - p1.Y
+	newX := p2.X + xDist
+	newY := p2.Y + yDist
 	return Position{newX, newY}
 }
 

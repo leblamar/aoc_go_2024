@@ -17,14 +17,12 @@ const (
 type day8 struct {
 	radioMap map[frequency][]position
 	matrix   [][]frequency
-	result   map[frequency]int
-	result2  [][]bool
+	result   [][]bool
 }
 
 func parse(lines []string) day8 {
 	radioMap := make(map[frequency][]position)
 	matrix := make([][]frequency, 0, len(lines))
-	result2 := make([][]bool, 0, len(lines))
 
 	for i, line := range lines {
 		row := make([]frequency, 0, len(line))
@@ -44,10 +42,9 @@ func parse(lines []string) day8 {
 		}
 
 		matrix = append(matrix, row)
-		result2 = append(result2, make([]bool, len(line)))
 	}
 
-	return day8{radioMap, matrix, make(map[frequency]int), result2}
+	return day8{radioMap, matrix, [][]bool{}}
 }
 
 func (pg *day8) get(p position) (frequency, bool) {
@@ -62,12 +59,11 @@ func (pg *day8) get(p position) (frequency, bool) {
 	}
 }
 
-func (pg *day8) mark(freq frequency, p position) {
-	pg.result[freq] += 1
-	pg.result2[p.X][p.Y] = true
+func (pg *day8) mark(p position) {
+	pg.result[p.X][p.Y] = true
 }
 
-func (pg *day8) drawSym(freq frequency, positions []position) {
+func (pg *day8) drawSym(positions []position) {
 	for i, pos1 := range positions {
 		for j, pos2 := range positions {
 			if i == j {
@@ -76,10 +72,9 @@ func (pg *day8) drawSym(freq frequency, positions []position) {
 			}
 
 			symPos := pos1.Sym(pos2)
-			//fmt.Println("Sym:", symPos)
 			_, ok := pg.get(symPos)
 			if ok {
-				pg.mark(freq, symPos)
+				pg.mark(symPos)
 			}
 		}
 	}
@@ -87,37 +82,82 @@ func (pg *day8) drawSym(freq frequency, positions []position) {
 
 func (pg day8) String() string {
 	var b bytes.Buffer
-	for _, row := range pg.matrix {
-		for _, freq := range row {
-			b.WriteRune(freq)
+	for i, row := range pg.matrix {
+		for j, freq := range row {
+			if pg.result[i][j] { // && freq == '.' {
+				b.WriteRune('#')
+			} else {
+				b.WriteRune(freq)
+			}
 		}
 		b.WriteRune('\n')
 	}
 	return b.String()
 }
 
-func (pg day8) day8_1() {
-	for freq, positions := range pg.radioMap {
-		pg.drawSym(freq, positions)
-	}
-
-	count2 := 0
-	for _, countFreq := range pg.result {
-		count2 += countFreq
-	}
-
-	count3 := 0
-	for _, row := range pg.result2 {
+func (pg *day8) getResult() int {
+	count := 0
+	for _, row := range pg.result {
 		for _, isOk := range row {
 			if isOk {
-				count3++
+				count++
 			}
 		}
 	}
-	fmt.Println("Part 1:", count2, ", ", count3)
+
+	return count
 }
-func (pg day8) day8_2() {
-	fmt.Println("Part 2:")
+
+func (pg *day8) reset() {
+	pg.result = make([][]bool, 0, len(pg.matrix))
+	for _, row := range pg.matrix {
+		pg.result = append(pg.result, make([]bool, len(row)))
+	}
+}
+
+func (pg *day8) day8_1() {
+	pg.reset()
+	for _, positions := range pg.radioMap {
+		pg.drawSym(positions)
+	}
+
+	count := pg.getResult()
+	fmt.Println("Part 1:", count)
+}
+
+func (pg *day8) drawRepSym(positions []position) {
+	for i, pos1 := range positions {
+		for j, pos2 := range positions {
+			if i == j {
+				// No sym of himself
+				continue
+			}
+
+			pg.mark(pos1)
+			pg.mark(pos2)
+			tmpPos1 := pos1
+			tmpPos2 := pos2
+			symPos := tmpPos1.Sym(tmpPos2)
+			_, ok := pg.get(symPos)
+			for ok {
+				pg.mark(symPos)
+				tmpPos1 = tmpPos2
+				tmpPos2 = symPos
+				symPos = tmpPos1.Sym(tmpPos2)
+				_, ok = pg.get(symPos)
+			}
+		}
+	}
+}
+
+func (pg *day8) day8_2() {
+	pg.reset()
+	for _, positions := range pg.radioMap {
+		pg.drawRepSym(positions)
+	}
+
+	count := pg.getResult()
+	fmt.Println("Part 2:", count)
 }
 
 func Day8(isTest bool) {
