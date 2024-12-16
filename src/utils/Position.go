@@ -42,4 +42,4 @@ func (p Position) Inside(matrix [][]int) bool {
 	return p.X < len(matrix) && p.Y < len(matrix[0])
 }
 
-var CardinalDirs = []Position{Position{0, -1}, Position{1, 0}, Position{0, 1}, Position{-1, 0}}
+var CardinalDirs = []Position{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
