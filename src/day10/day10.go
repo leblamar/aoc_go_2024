@@ -32,15 +32,7 @@ func parse(lines []string) graph {
 	return graph{matrix, zeros}
 }
 
-func (v Visited) makeCopy() Visited {
-	newV := make(Visited, len(v))
-	for pos, visited := range v {
-		newV[pos] = visited
-	}
-	return newV
-}
-
-func (g graph) foundNines(visited Visited, pos position, nines Visited) {
+func (g graph) foundNines(pos position, nines Visited) {
 	curVal, ok := g.mat.Get(pos)
 	if !ok {
 		return
@@ -56,17 +48,13 @@ func (g graph) foundNines(visited Visited, pos position, nines Visited) {
 			continue
 		} else if nextVal != curVal+1 {
 			continue
-		} else if visited[nextPos] {
-			continue
 		} else {
-			newVisited := visited.makeCopy()
-			newVisited[nextPos] = true
-			g.foundNines(newVisited, nextPos, nines)
+			g.foundNines(nextPos, nines)
 		}
 	}
 }
 
-func (g graph) foundAllPath(visited Visited, pos position) int {
+func (g graph) foundAllPath(pos position) int {
 	curVal, ok := g.mat.Get(pos)
 	if !ok {
 		return 0
@@ -82,12 +70,8 @@ func (g graph) foundAllPath(visited Visited, pos position) int {
 			continue
 		} else if nextVal != curVal+1 {
 			continue
-		} else if visited[nextPos] {
-			continue
 		} else {
-			newVisited := visited.makeCopy()
-			newVisited[nextPos] = true
-			sum += g.foundAllPath(newVisited, nextPos)
+			sum += g.foundAllPath(nextPos)
 		}
 	}
 
@@ -98,9 +82,7 @@ func (g graph) day10_1() {
 	sum := 0
 	for _, pos := range g.zeros {
 		nines := make(Visited)
-		visited := make(Visited, 9)
-		visited[pos] = true
-		g.foundNines(visited, pos, nines)
+		g.foundNines(pos, nines)
 		sum += len(nines)
 	}
 	fmt.Println("Part 1:", sum)
@@ -109,9 +91,7 @@ func (g graph) day10_1() {
 func (g graph) day10_2() {
 	sum := 0
 	for _, pos := range g.zeros {
-		visited := make(Visited, 9)
-		visited[pos] = true
-		sum += g.foundAllPath(visited, pos)
+		sum += g.foundAllPath(pos)
 	}
 	fmt.Println("Part 2:", sum)
 }

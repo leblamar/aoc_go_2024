@@ -6,6 +6,7 @@ import (
 	"log"
 	"strconv"
 	"time"
+	"unicode"
 )
 
 type day9 struct {
@@ -13,12 +14,16 @@ type day9 struct {
 }
 
 func parse(lines []string) day9 {
-	if len(lines) > 1 && len(lines) == 0 {
+	if len(lines) > 1 || len(lines) == 0 {
 		log.Fatal("Bad input")
 	}
 
 	input := make([]int, 0, len(lines[0]))
 	for _, car := range lines[0] {
+		isDigit := unicode.IsDigit(car)
+		if !isDigit {
+			continue
+		}
 		input = append(input, int(car-'0'))
 	}
 
@@ -158,7 +163,7 @@ func (pg *day9) day9_2(debug bool) {
 
 		if ei == fiSrc-1 {
 			emptyList[ei] = 0
-			emptyList[fiSrc] = eSize
+			emptyList[fiSrc] += eSize
 			// Do not need to change fillLists
 			continue
 		}
@@ -177,6 +182,9 @@ func (pg *day9) day9_2(debug bool) {
 		emptyList[ei] = eSize - fSize
 
 		// add 0 element before new fill
+		//endEmptyList := emptyList[ei:]
+		//emptyList = append(emptyList[:ei], 0)
+		//emptyList = append(emptyList, endEmptyList...)
 		for i := len(emptyList) - 1; i > ei; i-- {
 			emptyList[i] = emptyList[i-1]
 		}
@@ -198,8 +206,6 @@ func (pg *day9) day9_2(debug bool) {
 	}
 
 	if debug {
-		fmt.Println(emptyList)
-		fmt.Println(posToFillList)
 		fmt.Println(fillList)
 	}
 	sum := 0
