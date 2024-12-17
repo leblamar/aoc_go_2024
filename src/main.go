@@ -3,6 +3,7 @@ package main
 import (
 	"aoc_go_2024/src/day1"
 	"aoc_go_2024/src/day10"
+	"aoc_go_2024/src/day11"
 	"aoc_go_2024/src/day2"
 	"aoc_go_2024/src/day3"
 	"aoc_go_2024/src/day4"
@@ -32,6 +33,7 @@ func main() {
 		day8.Day8(false)
 		day9.Day9(false, false)
 		day10.Day10(false)
+		day11.Day11(false, false)
 		return
 	} else if len(args) > 1 {
 		day, err = strconv.Atoi(args[1])
@@ -75,5 +77,7 @@ func main() {
 		day9.Day9(justATest, debug)
 	case 10:
 		day10.Day10(justATest)
+	case 11:
+		day11.Day11(justATest, debug)
 	}
 }
