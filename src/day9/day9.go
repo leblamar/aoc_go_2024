@@ -85,9 +85,26 @@ func (pg *day9) day9_1(debug bool) {
 	fmt.Println("Part1:", sum)
 }
 
-type values struct {
-	size int
-	id   int
+func toString(fillList, posToFillList, emptyList []int) {
+	printRes := ""
+	currentIndex := 0
+	for i, fill := range posToFillList {
+		size := fillList[fill]
+		finalIndex := currentIndex + size
+		for currentIndex < finalIndex {
+			currentIndex++
+			printRes += strconv.Itoa(fill)
+		}
+
+		currentIndex += emptyList[i]
+		for j := 0; j < emptyList[i]; j++ {
+			printRes += "."
+		}
+	}
+
+	fmt.Println(emptyList)
+	fmt.Println(posToFillList)
+	fmt.Println(printRes)
 }
 
 func (pg *day9) day9_2(debug bool) {
@@ -116,57 +133,35 @@ func (pg *day9) day9_2(debug bool) {
 	}
 
 	for fi := len(fillList) - 1; fi >= 0; fi-- {
+		if debug {
+			fmt.Println("Process :", fi)
+			toString(fillList, posToFillList, emptyList)
+		}
 		fSize := fillList[fi]
+		fiSrc := fillToPosList[fi]
+
 		ei := 0
 		eSize := emptyList[ei]
-		for ei <= fi && eSize < fSize {
+		for ei < fiSrc && eSize < fSize {
 			ei++
 			if ei < len(emptyList) {
 				eSize = emptyList[ei]
 			}
 		}
 
-		if ei > fi || eSize < fSize {
+		if ei >= fiSrc || eSize < fSize {
+			if debug {
+				fmt.Println("Nothing to do for :", fi)
+			}
 			continue
 		}
 
-		// countValid = 1
-		// fSize = 3
-		// fi = -2
-		// ei = 2
-		// 0, 1, 3, 3, 1, 1, 1, 1, 1, 2
-		// 0, 1, 0, 0, 3, 1, 1, 1, 5, 2
-		// 0, 1, 	 3  , 3, 1, 1, 1, 1,  1, 2
-		// 0, 1, +0, 3-3, 3, 1, 1, 1, 1+3+1, 2
-		// Or
-		// countValid = 2
-		// fSize = 2
-		// fi = -5
-		// ei = 4
-		// 0, 1, 0, 0, 3, 1, 1, 1, 5, 2
-		// 0, 1, 0, 0, 0, 1, 4, 1, 5, 2
-		// 0, 1, 0, 0,     3  , 1,  1, 1, 5, 2
-		// 0, 1, 0, 0, +0, 3-2, 1+2+1, 1, 5, 2
-		// Or
-		// countValid = 3
-		// fSize = 1
-		// fi = -7
-		// ei = 1
-		// 0, 1, 0, 0, 0, 1, 4, 1, 5, 2
-		// 0, 0, 0, 0, 1, 1, 4, 1, 5, 2
-		// 0,     1  , 0, 0,  0, 1, 4, 1, 5, 2
-		// 0, +0, 1-1, 0, 0+1+0, 1, 4, 1, 5, 2
-		// Or fSize = 1
-		// fi: 0, 1, 2
-		// fi: 0, 1, 2
-		// ei: 1, 0, 0
-		// ei: 0, 1, 0
-		// ei: 1, 0, 0
-		// ei: 0, 1, 0
-		// ei: 1-1, 0+1+0, 0
-		// ei: 	 0, 1,   0
-
-		fiSrc := fillToPosList[fi]
+		if ei == fiSrc-1 {
+			emptyList[ei] = 0
+			emptyList[fiSrc] = eSize
+			// Do not need to change fillLists
+			continue
+		}
 
 		// Delete fill element so must merge close empty elements
 		eiMerge1 := fiSrc
@@ -187,23 +182,8 @@ func (pg *day9) day9_2(debug bool) {
 		}
 		emptyList[ei] = 0
 
-		// countValid = 1
-		// fi = 7
-		// ei = 2
-		// {s:2,i:0}, {s:2,i:9}, {s:3,i:1}, {s:1,i:2}, {s:3,i:3}, {s:2,i:4}, {s:4,i:5}, {s:4,i:6}, {s:3,i:7}, {s:4,i:8}
-		// {s:2,i:0}, {s:2,i:9}, {s:3,i:1}, {s:3,i:7}, {s:1,i:2}, {s:3,i:3}, {s:2,i:4}, {s:4,i:5}, {s:4,i:6}, {s:4,i:8}
-		// fillToPosList : [0, 2, 3, 4, 5, 6, 7, 8, 9, 1], fiSrc = 8
-		// fillToPosList : [0, 2, 4, 5, 6, 7, 8, 3, 9, 1], fiDst = 3
-		// posToFillList : [0, 9, 1, 2, 3, 4, 5, 6, 7, 8]
-		// posToFillList : [0, 9, 1, 7, 2, 3, 4, 5, 6, 8]
-		// Or
-		// countValid = 2
-		// fi = -5
-		// ei = 4
-		// {s:2,i:0}, {s:2,i:9}, {s:3,i:1}, {s:3,i:7}, {s:1,i:2}, {s:3,i:3}, {s:2,i:4}, {s:4,i:5}, {s:4,i:6}, {s:4,i:8}
-		// {s:2,i:0}, {s:2,i:9}, {s:3,i:1}, {s:3,i:7}, {s:1,i:2}, {s:2,i:4}, {s:3,i:3}, {s:4,i:5}, {s:4,i:6}, {s:4,i:8}
+		// Manage fill list now
 		fiDst := ei + 1
-
 		for i := fiSrc; i > fiDst; i-- {
 			curFillToIncrPos := posToFillList[i-1]
 			fillToPosList[curFillToIncrPos] += 1
@@ -211,11 +191,17 @@ func (pg *day9) day9_2(debug bool) {
 		}
 		posToFillList[fiDst] = fi
 		fillToPosList[fi] = fiDst
+		if debug {
+			toString(fillList, posToFillList, emptyList)
+			fmt.Println("Finished process :", fi)
+		}
 	}
 
-	fmt.Println(emptyList)
-	fmt.Println(posToFillList)
-	fmt.Println(fillList)
+	if debug {
+		fmt.Println(emptyList)
+		fmt.Println(posToFillList)
+		fmt.Println(fillList)
+	}
 	sum := 0
 	currentIndex := 0
 	printRes := ""
@@ -234,8 +220,10 @@ func (pg *day9) day9_2(debug bool) {
 		}
 	}
 
+	if debug {
+		toString(fillList, posToFillList, emptyList)
+	}
 	fmt.Println("Part2:", sum)
-	fmt.Println(printRes)
 }
 
 func Day9(isTest, debug bool) {
