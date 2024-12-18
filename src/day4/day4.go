@@ -2,21 +2,21 @@ package day4
 
 import (
 	"aoc_go_2024/src/utils"
-	"errors"
-	"fmt"
 )
 
-func parse(lines []string) [][]rune {
-	matrix := make([][]rune, 0, len(lines))
-	for _, line := range lines {
-		row := make([]rune, 0, len(line))
-		for _, elem := range line {
-			row = append(row, elem)
-		}
-		matrix = append(matrix, row)
-	}
+type grid = utils.Grid[rune]
+type Day4 struct{}
 
-	return matrix
+func (d Day4) GetNumber() uint {
+	return 4
+}
+
+func subParse(val rune) (rune, error) {
+	return val, nil
+}
+
+func (d Day4) Parse(lines []string) grid {
+	return utils.Parse(lines, subParse)
 }
 
 type xmas struct {
@@ -53,25 +53,11 @@ func (ctx *xmas) advance(car rune) bool {
 	}
 }
 
-type pt struct {
-	x int
-	y int
-}
+type pt = utils.Position
 
-func (cur pt) add(other pt) pt {
-	return pt{cur.x + other.x, cur.y + other.y}
-}
-
-func (cur pt) getRune(input [][]rune) (rune, error) {
-	if cur.x < 0 || len(input) <= cur.x || cur.y < 0 || len(input[0]) <= cur.y {
-		return rune(0), errors.New("not in matrix")
-	}
-	return input[cur.x][cur.y], nil
-}
-
-func day4_1(input [][]rune) {
+func (d Day4) Part1(input grid) int64 {
 	ctx := xmas{0, "XMAS", 0}
-	directions := []pt{{-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}}
+	directions := []pt{{X: -1, Y: 0}, {X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 0}, {X: 1, Y: 1}, {X: 0, Y: 1}, {X: -1, Y: 1}}
 
 	for i, row := range input {
 		for j, car := range row {
@@ -82,23 +68,22 @@ func day4_1(input [][]rune) {
 				continue
 			}
 
-			xPt := pt{i, j}
+			xPt := pt{X: i, Y: j}
 			for _, curDir := range directions {
 				ctx.reset()
 				ctx.advance(car)
 
-				curPt := xPt.add(curDir)
-				curRune, err := curPt.getRune(input)
-				for err == nil && ctx.advance(curRune) {
-					curPt = curPt.add(curDir)
-					curRune, err = curPt.getRune(input)
+				curPt := xPt.Add(curDir)
+				curRune, ok := input.Get(curPt)
+				for ok && ctx.advance(curRune) {
+					curPt = curPt.Add(curDir)
+					curRune, ok = input.Get(curPt)
 				}
 			}
 		}
 	}
 
-	fmt.Println()
-	fmt.Println("Part 1 :", ctx.count)
+	return int64(ctx.count)
 }
 
 func xmasOposite(a, b rune) bool {
@@ -111,55 +96,45 @@ func xmasOposite(a, b rune) bool {
 	}
 }
 
-func day4_2(input [][]rune) {
+func (d Day4) Part2(input grid) (count int64) {
 	aRune := rune('A')
-	count := 0
-	leftUpDir, rightDownPt := pt{-1, -1}, pt{1, 1}
-	leftDownDir, rightUpPt := pt{1, -1}, pt{-1, 1}
+	count = 0
+	leftUpDir, rightDownPt := pt{X: -1, Y: -1}, pt{X: 1, Y: 1}
+	leftDownDir, rightUpPt := pt{X: 1, Y: -1}, pt{X: -1, Y: 1}
 	for i, row := range input {
 		for j, car := range row {
 			if car != aRune {
 				continue
 			}
 
-			xPt := pt{i, j}
+			xPt := pt{X: i, Y: j}
 
-			leftUpPt := xPt.add(leftUpDir)
-			letter1, err := leftUpPt.getRune(input)
-			if err != nil {
+			leftUpPt := xPt.Add(leftUpDir)
+			letter1, ok := input.Get(leftUpPt)
+			if !ok {
 				continue
 			}
 
-			rightDownPt := xPt.add(rightDownPt)
-			letter2, err2 := rightDownPt.getRune(input)
-			if err2 != nil || !xmasOposite(letter1, letter2) {
+			rightDownPt := xPt.Add(rightDownPt)
+			letter2, ok := input.Get(rightDownPt)
+			if !ok || !xmasOposite(letter1, letter2) {
 				continue
 			}
 
-			leftDownPt := xPt.add(leftDownDir)
-			letter1, err = leftDownPt.getRune(input)
-			if err != nil {
+			leftDownPt := xPt.Add(leftDownDir)
+			letter1, ok = input.Get(leftDownPt)
+			if !ok {
 				continue
 			}
 
-			rightUpPt := xPt.add(rightUpPt)
-			letter2, err2 = rightUpPt.getRune(input)
-			if err2 != nil || !xmasOposite(letter1, letter2) {
+			rightUpPt := xPt.Add(rightUpPt)
+			letter2, ok = input.Get(rightUpPt)
+			if !ok || !xmasOposite(letter1, letter2) {
 				continue
 			}
 
 			count += 1
 		}
 	}
-	fmt.Println("Part 2 :", count)
-}
-
-func Day4(justATest bool) {
-	fmt.Println("Welcome to day 4!!!")
-
-	lines := utils.GetLines(justATest, 4)
-	input := parse(lines)
-
-	day4_1(input)
-	day4_2(input)
+	return
 }

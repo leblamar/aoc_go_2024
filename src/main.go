@@ -1,83 +1,56 @@
 package main
 
 import (
-	"aoc_go_2024/src/day1"
-	"aoc_go_2024/src/day10"
-	"aoc_go_2024/src/day11"
-	"aoc_go_2024/src/day2"
-	"aoc_go_2024/src/day3"
-	"aoc_go_2024/src/day4"
-	"aoc_go_2024/src/day5"
-	"aoc_go_2024/src/day6"
-	"aoc_go_2024/src/day7"
-	"aoc_go_2024/src/day8"
-	"aoc_go_2024/src/day9"
 	"log"
 	"os"
 	"strconv"
 )
 
-func main() {
+func runAll() {
+	var day uint = 0
+	for curDay, err := GetDay(day); err != nil; day++ {
+		Run(curDay, false, false)
+	}
+}
+
+func getArgs() (day int, isTest, debug bool) {
 	args := os.Args
-
-	var day int
-	var err error
-	if len(args) == 1 {
-		day1.Day1(false)
-		day2.Day2(false)
-		day3.Day3(false)
-		day4.Day4(false)
-		day5.Day5(false)
-		day6.Day6(false, false)
-		day7.Day7(false, false)
-		day8.Day8(false)
-		day9.Day9(false, false)
-		day10.Day10(false)
-		day11.Day11(false, false)
-		return
-	} else if len(args) > 1 {
-		day, err = strconv.Atoi(args[1])
-
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
+	if len(args) <= 1 {
+		return -1, false, false
 	}
 
-	justATest := false
-	debug := false
+	day, err := strconv.Atoi(args[1])
+	if err != nil {
+		log.Fatal(err)
+		return -1, false, false
+	}
+
+	isTest = false
+	debug = false
 	if len(args) >= 3 {
 		for _, arg := range args {
 			if arg == "-t" {
-				justATest = true
+				isTest = true
 			} else if arg == "-d" {
 				debug = true
 			}
 		}
 	}
 
-	switch day {
-	case 1:
-		day1.Day1(justATest)
-	case 2:
-		day2.Day2(justATest)
-	case 3:
-		day3.Day3(justATest)
-	case 4:
-		day4.Day4(justATest)
-	case 5:
-		day5.Day5(justATest)
-	case 6:
-		day6.Day6(justATest, debug)
-	case 7:
-		day7.Day7(justATest, debug)
-	case 8:
-		day8.Day8(justATest)
-	case 9:
-		day9.Day9(justATest, debug)
-	case 10:
-		day10.Day10(justATest)
-	case 11:
-		day11.Day11(justATest, debug)
+	return
+}
+
+func main() {
+	day, isTest, debug := getArgs()
+	if day < 1 {
+		runAll()
+		return
 	}
+
+	curDay, err := GetDay(uint(day))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	Run(curDay, isTest, debug)
 }

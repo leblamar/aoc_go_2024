@@ -1,6 +1,11 @@
 package utils
 
-type Grid[T any] [][]T
+import (
+	"log"
+)
+
+type Row[T any] []T
+type Grid[T any] []Row[T]
 
 func (g Grid[T]) IsInside(p Position) bool {
 	if len(g) == 0 {
@@ -34,4 +39,25 @@ func (g Grid[T]) Width() int {
 		return 0
 	}
 	return len(g[0])
+}
+
+func Parse[T any](lines []string, subParse ParseRune[T]) (matrix Grid[T]) {
+	matrix = make(Grid[T], 0, len(lines))
+	for _, line := range lines {
+		row := make(Row[T], 0, len(line))
+
+		for _, elem := range line {
+			val, err := subParse(elem)
+			if err != nil {
+				log.Fatal(err)
+				continue
+			}
+
+			row = append(row, val)
+		}
+
+		matrix = append(matrix, row)
+	}
+
+	return
 }

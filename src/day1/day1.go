@@ -2,7 +2,6 @@ package day1
 
 import (
 	"aoc_go_2024/src/utils"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,7 +12,13 @@ type lists struct {
 	right []int
 }
 
-func parse(lines []string) lists {
+type Day1 struct{}
+
+func (d Day1) GetNumber() uint {
+	return 1
+}
+
+func (d Day1) Parse(lines []string) lists {
 	left_list := make([]int, 0)
 	right_list := make([]int, 0)
 	separator := "   "
@@ -36,12 +41,12 @@ func parse(lines []string) lists {
 	return lists{left_list, right_list}
 }
 
-func day1_1(input lists) {
+func (d Day1) Part1(debug bool, input lists) int64 {
 	left_list := input.left
 	right_list := input.right
 
 	if len(left_list) != len(right_list) {
-		return
+		return -1
 	}
 
 	sort.Ints(left_list)
@@ -52,10 +57,10 @@ func day1_1(input lists) {
 		sum += utils.Abs(left_list[i] - right_list[i])
 	}
 
-	fmt.Println("Part 1 :", sum)
+	return int64(sum)
 }
 
-func day1_2(input lists) {
+func (d Day1) Part2(debug bool, input lists) int64 {
 	left_list := input.left
 	right_list := input.right
 
@@ -79,15 +84,5 @@ func day1_2(input lists) {
 		}
 	}
 
-	fmt.Println("Part 2 :", sum)
-}
-
-func Day1(justATest bool) {
-	fmt.Println("Welcome to day 1!!!")
-
-	lines := utils.GetLines(justATest, 1)
-	input := parse(lines)
-
-	day1_1(input)
-	day1_2(input)
+	return int64(sum)
 }

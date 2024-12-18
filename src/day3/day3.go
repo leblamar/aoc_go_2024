@@ -1,13 +1,18 @@
 package day3
 
 import (
-	"aoc_go_2024/src/utils"
-	"fmt"
 	"strings"
 	"unicode"
 )
 
-func parse(lines []string) string {
+type expression = string
+type Day3 struct{}
+
+func (d Day3) GetNumber() uint {
+	return 3
+}
+
+func (d Day3) Parse(lines []string) expression {
 	return strings.Join(lines, "")
 }
 
@@ -25,7 +30,7 @@ func (ctx *mulContext) reset() {
 	ctx.nbLvl = 0
 }
 
-func day3_1(input string) {
+func (d Day3) Part1(input expression) int64 {
 	ctx := mulContext{0, 0, 0, 0}
 	var multSum uint = 0
 	for _, token := range input {
@@ -55,7 +60,8 @@ func day3_1(input string) {
 			ctx.reset()
 		}
 	}
-	fmt.Println("Part 1 :", multSum)
+
+	return int64(multSum)
 }
 
 type doContext struct {
@@ -70,7 +76,7 @@ func (ctx *doContext) reset() {
 	ctx.isDo = true
 }
 
-func day3_2(input string) {
+func (d Day3) Part2(input expression) int64 {
 	ctx := mulContext{0, 0, 0, 0}
 	doCtx := doContext{0, 0, true}
 	var multSum uint = 0
@@ -126,15 +132,5 @@ func day3_2(input string) {
 			ctx.reset()
 		}
 	}
-	fmt.Println("Part 2 :", multSum)
-}
-
-func Day3(justATest bool) {
-	fmt.Println("Welcome to day 3!!!")
-
-	lines := utils.GetLines(justATest, 3)
-	input := parse(lines)
-
-	day3_1(input)
-	day3_2(input)
+	return int64(multSum)
 }

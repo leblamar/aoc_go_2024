@@ -8,14 +8,15 @@ import (
 
 type position = utils.Position
 type Visited map[position]bool
+type grid = utils.Grid[int]
 
 type graph struct {
-	mat   utils.Grid[int]
+	mat   grid
 	zeros []position
 }
 
 func parse(lines []string) graph {
-	matrix := make([][]int, 0, len(lines))
+	matrix := make(grid, 0, len(lines))
 	zeros := make([]position, 0)
 	for i, line := range lines {
 		row := make([]int, 0, len(line))

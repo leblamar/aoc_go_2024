@@ -2,14 +2,21 @@ package day2
 
 import (
 	"aoc_go_2024/src/utils"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
 )
 
-func parse(lines []string) (matrix [][]int) {
-	matrix = make([][]int, 0, len(lines))
+type listOfList = [][]int
+
+type Day2 struct{}
+
+func (d Day2) GetNumber() uint {
+	return 2
+}
+
+func (d Day2) Parse(lines []string) (matrix listOfList) {
+	matrix = make(listOfList, 0, len(lines))
 	separator := " "
 	for _, line := range lines {
 		row_str := strings.Split(line, separator)
@@ -27,7 +34,6 @@ func parse(lines []string) (matrix [][]int) {
 
 		matrix = append(matrix, row)
 	}
-
 	return
 }
 
@@ -65,15 +71,14 @@ func isSafe(row []int) bool {
 	return true
 }
 
-func day2_1(input [][]int) {
-	count := 0
+func (d Day2) Part1(input listOfList) (count int64) {
+	count = 0
 	for _, row := range input {
 		if isSafe(row) {
 			count += 1
 		}
 	}
-
-	fmt.Println("Part 1 :", count)
+	return
 }
 
 func createAndRemove(row []int, i int) []int {
@@ -117,23 +122,12 @@ func isAlmostSafe(row []int) bool {
 	return true
 }
 
-func day2_2(input [][]int) {
-	count := 0
+func (d Day2) Part2(input listOfList) (count int64) {
+	count = 0
 	for _, row := range input {
 		if isAlmostSafe(row) {
 			count += 1
 		}
 	}
-
-	fmt.Println("Part 2 :", count)
-}
-
-func Day2(justATest bool) {
-	fmt.Println("Welcome to day 2!!!")
-
-	lines := utils.GetLines(justATest, 2)
-	input := parse(lines)
-
-	day2_1(input)
-	day2_2(input)
+	return
 }
