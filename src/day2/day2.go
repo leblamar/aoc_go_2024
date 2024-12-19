@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type listOfList = [][]int
+type listOfList [][]int
 
 type Day2 struct{}
 

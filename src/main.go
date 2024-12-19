@@ -1,15 +1,15 @@
 package main
 
 import (
+	"aoc_go_2024/src/dayUtils"
 	"log"
 	"os"
 	"strconv"
 )
 
 func runAll() {
-	var day uint = 0
-	for curDay, err := GetDay(day); err != nil; day++ {
-		Run(curDay, false, false)
+	for day := 0; true; day++ {
+		dayUtils.RunSpecificDay(uint(day), false, false)
 	}
 }
 
@@ -47,10 +47,5 @@ func main() {
 		return
 	}
 
-	curDay, err := GetDay(uint(day))
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	Run(curDay, isTest, debug)
+	dayUtils.RunSpecificDay(uint(day), isTest, debug)
 }
