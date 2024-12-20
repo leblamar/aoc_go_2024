@@ -68,8 +68,143 @@ func computePerimeter(pCells perimeterCells) int64 {
 	return int64(len(pCells))
 }
 
+// Return true if found at least one friend in the direction
+func walkInDir(pCells map[position]bool, pos, dir position, v map[position]bool) (position, bool) {
+	curPos := pos
+	for pCells[curPos] {
+		v[curPos] = true
+		nextPos := curPos.Add(dir)
+
+		if !pCells[nextPos] {
+			break
+		}
+		curPos = nextPos
+	}
+	return curPos, curPos != pos
+}
+
+func isSideInDirection(pCells map[position]bool, pos position, isHorizontal bool, v map[position]bool) (prev, next position, isInDir bool) {
+	var prevDir position
+	var nextDir position
+	if isHorizontal {
+		prevDir = position{X: 0, Y: -1}
+		nextDir = position{X: 0, Y: 1}
+	} else {
+		prevDir = position{X: -1, Y: 0}
+		nextDir = position{X: 1, Y: 0}
+	}
+
+	next, hasNext := walkInDir(pCells, pos, nextDir, v)
+	prev, hasPrev := walkInDir(pCells, pos, prevDir, v)
+
+	isInDir = hasNext || hasPrev
+	return
+}
+
+func walkForm(pCells, outV map[position]bool, pos position) []position {
+	formV := map[position]bool{}
+	queue := []position{pos}
+	pFormInOrder := []position{}
+
+	for len(queue) != 0 {
+		curPos := queue[0]
+		queue = queue[1:]
+		pFormInOrder = append(pFormInOrder, curPos)
+		outV[curPos] = true
+		formV[curPos] = true
+		for _, dir := range utils.WithDiagDirs {
+			nextPos := curPos.Add(dir)
+			if !pCells[nextPos] {
+				continue
+			} else if formV[nextPos] {
+				continue
+			} else {
+				queue = append(queue, nextPos)
+			}
+		}
+	}
+
+	return pFormInOrder
+}
+
+func sameSide(pos1, pos2 position) bool {
+	return pos1.X == pos2.X || pos1.Y == pos2.Y
+}
+
+func nbIn(inPCells map[position]bool, pos position) (in int64) {
+	in = 0
+	for _, dir := range utils.CardinalDirs {
+		nextPos := pos.Add(dir)
+		if inPCells[nextPos] {
+			in += 1
+		}
+	}
+	return
+}
+
+func nbSides(inPCells map[position]bool, pFormInOrder []position) (sides int64) {
+	sides = 0
+	if len(pFormInOrder) == 0 {
+		return
+	} else if len(pFormInOrder) == 1 {
+		sides = 4
+		return
+	}
+
+	prevPos := pFormInOrder[0]
+	for _, curPos := range pFormInOrder[1:] {
+		if sameSide(prevPos, curPos) {
+			prevPos = curPos
+			continue
+		} else {
+			prevPos = curPos
+			sides += nbIn(inPCells, curPos)
+		}
+	}
+
+	if !sameSide(prevPos, pFormInOrder[0]) {
+		sides += 1
+	}
+	return
+}
+
+func subComputeSides(outPCells, inPCells map[position]bool) (sides int64) {
+	v := make(map[position]bool)
+	sides = 0
+	for pos := range outPCells {
+		if v[pos] {
+			continue
+		}
+
+		//pFormInOrder := walkForm(outPCells, v, pos)
+		//sides += nbSides(inPCells, pFormInOrder)
+
+		_, _, isHorizontal := isSideInDirection(outPCells, pos, true, v)
+		if isHorizontal {
+			sides += 1
+			continue
+		}
+
+		_, _, isVertical := isSideInDirection(outPCells, pos, false, v)
+		if isVertical {
+			sides += 1
+			continue
+		}
+
+		sides += nbIn(inPCells, pos)
+	}
+	return
+}
+
 func computeSides(pCells perimeterCells) int64 {
-	return int64(len(pCells))
+	outPCells := make(map[position]bool)
+	inPCells := make(map[position]bool)
+	for pCell := range pCells {
+		outPCells[pCell.out] = true
+		inPCells[pCell.in] = true
+	}
+	// Computing internal sides of a form is equivalent to compute external sides of the internal form
+	return subComputeSides(outPCells, inPCells)
 }
 
 func solve(debug bool, input grid, isPart1 bool) (sum int64) {

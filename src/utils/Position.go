@@ -43,3 +43,4 @@ func (p Position) Inside(matrix [][]int) bool {
 }
 
 var CardinalDirs = []Position{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
+var WithDiagDirs = []Position{{-1, -1}, {1, 1}, {1, -1}, {-1, 1}, {0, -1}, {1, 0}, {0, 1}, {-1, 0}}
