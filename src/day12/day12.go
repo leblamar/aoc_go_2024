@@ -7,6 +7,12 @@ import (
 
 type grid = utils.Grid[rune]
 type position = utils.Position
+type visited = utils.Grid[bool]
+type perimeterCell struct {
+	in  position
+	out position
+}
+type perimeterCells = map[perimeterCell]bool
 
 type Day12 struct{}
 
@@ -22,36 +28,33 @@ func (d Day12) Parse(lines []string) grid {
 	return utils.Parse(lines, subParse)
 }
 
-func solve(input grid, allV visited, i, j int) (int64, int64) {
+func solvePlant(input grid, allV visited, pCells perimeterCells, curPos position) int64 {
 	// Visited current node
-	curPlant, ok := input.Get(position{X: i, Y: j})
+	curPlant, ok := input.Get(curPos)
 	if !ok {
 		// should never happen
-		return 0, 0
+		return 0
 	}
 
-	var area, perimeter int64 = 0, 0
+	var area int64 = 0
 	for _, dir := range utils.CardinalDirs {
-		nextPos := position{X: i, Y: j}.Add(dir)
+		nextPos := curPos.Add(dir)
 		nextPlant, ok := input.Get(nextPos)
 		if !ok { // is outside
-			perimeter += 1
+			pCells[perimeterCell{curPos, nextPos}] = true
 		} else if curPlant != nextPlant {
-			perimeter += 1
+			pCells[perimeterCell{curPos, nextPos}] = true
 		} else if allV[nextPos.X][nextPos.Y] {
 			continue
 		} else {
 			allV[nextPos.X][nextPos.Y] = true
-			newArea, newPerimeter := solve(input, allV, nextPos.X, nextPos.Y)
+			newArea := solvePlant(input, allV, pCells, nextPos)
 			area += newArea
-			perimeter += newPerimeter
 		}
 
 	}
-	return area + 1, perimeter
+	return area + 1
 }
-
-type visited = utils.Grid[bool]
 
 func createVisited(input grid) visited {
 	v := make(visited, 0, input.Height())
@@ -61,7 +64,15 @@ func createVisited(input grid) visited {
 	return v
 }
 
-func (d Day12) Part1(debug bool, input grid) (sum int64) {
+func computePerimeter(pCells perimeterCells) int64 {
+	return int64(len(pCells))
+}
+
+func computeSides(pCells perimeterCells) int64 {
+	return int64(len(pCells))
+}
+
+func solve(debug bool, input grid, isPart1 bool) (sum int64) {
 	allV := createVisited(input)
 	sum = 0
 	for i, row := range input {
@@ -73,17 +84,33 @@ func (d Day12) Part1(debug bool, input grid) (sum int64) {
 				fmt.Println("Process ", string(plant))
 			}
 
+			pCells := make(perimeterCells)
+
 			allV[i][j] = true
-			area, perimeter := solve(input, allV, i, j)
-			sum += area * perimeter
-			if debug {
-				fmt.Println("Area:", area, ", Perimeter:", perimeter)
+			area := solvePlant(input, allV, pCells, position{X: i, Y: j})
+
+			if isPart1 {
+				perimeter := computePerimeter(pCells)
+				sum += area * perimeter
+				if debug {
+					fmt.Println("Area:", area, ", Perimeter:", perimeter)
+				}
+			} else {
+				sides := computeSides(pCells)
+				sum += area * sides
+				if debug {
+					fmt.Println("Area:", area, ", Sides:", sides)
+				}
 			}
 		}
 	}
 	return
 }
 
+func (d Day12) Part1(debug bool, input grid) int64 {
+	return solve(debug, input, true)
+}
+
 func (d Day12) Part2(debug bool, input grid) int64 {
-	return 0
+	return solve(debug, input, false)
 }
