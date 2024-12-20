@@ -7,10 +7,6 @@ import (
 type grid = utils.Grid[rune]
 type Day4 struct{}
 
-func (d Day4) GetNumber() uint {
-	return 4
-}
-
 func subParse(val rune) (rune, error) {
 	return val, nil
 }
@@ -55,7 +51,7 @@ func (ctx *xmas) advance(car rune) bool {
 
 type pt = utils.Position
 
-func (d Day4) Part1(input grid) int64 {
+func (d Day4) Part1(debug bool, input grid) int64 {
 	ctx := xmas{0, "XMAS", 0}
 	directions := []pt{{X: -1, Y: 0}, {X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 0}, {X: 1, Y: 1}, {X: 0, Y: 1}, {X: -1, Y: 1}}
 
@@ -96,7 +92,7 @@ func xmasOposite(a, b rune) bool {
 	}
 }
 
-func (d Day4) Part2(input grid) (count int64) {
+func (d Day4) Part2(debug bool, input grid) (count int64) {
 	aRune := rune('A')
 	count = 0
 	leftUpDir, rightDownPt := pt{X: -1, Y: -1}, pt{X: 1, Y: 1}

@@ -3,20 +3,23 @@ package dayUtils
 import (
 	"aoc_go_2024/src/utils"
 	"fmt"
+	"log"
 	"time"
 )
 
 type IDay[T any] interface {
-	GetNumber() uint
 	Parse([]string) T
 	Part1(bool, T) int64
 	Part2(bool, T) int64
 }
 
 func Run[T any](d IDay[T], args Args) {
-	fmt.Println("Welcome to day", d.GetNumber(), "!!!")
+	if args.Day < 1 {
+		log.Fatal("This should never happend")
+	}
+	fmt.Println("Welcome to day", args.Day, "!!!")
 
-	lines := utils.GetLines(args.IsTest, d.GetNumber())
+	lines := utils.GetLines(args.IsTest, uint(args.Day))
 	input := d.Parse(lines)
 
 	if args.OnlyP1 || !args.OnlyP2 {

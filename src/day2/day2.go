@@ -11,10 +11,6 @@ type listOfList [][]int
 
 type Day2 struct{}
 
-func (d Day2) GetNumber() uint {
-	return 2
-}
-
 func (d Day2) Parse(lines []string) (matrix listOfList) {
 	matrix = make(listOfList, 0, len(lines))
 	separator := " "
@@ -71,7 +67,7 @@ func isSafe(row []int) bool {
 	return true
 }
 
-func (d Day2) Part1(input listOfList) (count int64) {
+func (d Day2) Part1(debug bool, input listOfList) (count int64) {
 	count = 0
 	for _, row := range input {
 		if isSafe(row) {
@@ -122,7 +118,7 @@ func isAlmostSafe(row []int) bool {
 	return true
 }
 
-func (d Day2) Part2(input listOfList) (count int64) {
+func (d Day2) Part2(debug bool, input listOfList) (count int64) {
 	count = 0
 	for _, row := range input {
 		if isAlmostSafe(row) {

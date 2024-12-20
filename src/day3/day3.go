@@ -8,10 +8,6 @@ import (
 type expression = string
 type Day3 struct{}
 
-func (d Day3) GetNumber() uint {
-	return 3
-}
-
 func (d Day3) Parse(lines []string) expression {
 	return strings.Join(lines, "")
 }
@@ -30,7 +26,7 @@ func (ctx *mulContext) reset() {
 	ctx.nbLvl = 0
 }
 
-func (d Day3) Part1(input expression) int64 {
+func (d Day3) Part1(debug bool, input expression) int64 {
 	ctx := mulContext{0, 0, 0, 0}
 	var multSum uint = 0
 	for _, token := range input {
@@ -76,7 +72,7 @@ func (ctx *doContext) reset() {
 	ctx.isDo = true
 }
 
-func (d Day3) Part2(input expression) int64 {
+func (d Day3) Part2(debug bool, input expression) int64 {
 	ctx := mulContext{0, 0, 0, 0}
 	doCtx := doContext{0, 0, true}
 	var multSum uint = 0

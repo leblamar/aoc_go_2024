@@ -14,10 +14,6 @@ type lists struct {
 
 type Day1 struct{}
 
-func (d Day1) GetNumber() uint {
-	return 1
-}
-
 func (d Day1) Parse(lines []string) lists {
 	left_list := make([]int, 0)
 	right_list := make([]int, 0)

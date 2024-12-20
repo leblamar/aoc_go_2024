@@ -16,10 +16,6 @@ type perimeterCells = map[perimeterCell]bool
 
 type Day12 struct{}
 
-func (d Day12) GetNumber() uint {
-	return 12
-}
-
 func subParse(val rune) (rune, error) {
 	return val, nil
 }
