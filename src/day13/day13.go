@@ -5,15 +5,17 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/shopspring/decimal"
 )
 
 type button struct {
-	x int64
-	y int64
+	x decimal.Decimal
+	y decimal.Decimal
 }
 type price struct {
-	x int64
-	y int64
+	x decimal.Decimal
+	y decimal.Decimal
 }
 type machine struct {
 	a button
@@ -51,7 +53,7 @@ func parseButton(line string) button {
 
 	x := parseExp(s[0], "+")
 	y := parseExp(s[1], "+")
-	return button{x, y}
+	return button{decimal.NewFromInt(x), decimal.NewFromInt(y)}
 }
 
 func parsePrice(line string) price {
@@ -67,7 +69,7 @@ func parsePrice(line string) price {
 
 	x := parseExp(s[0], "=")
 	y := parseExp(s[1], "=")
-	return price{x, y}
+	return price{decimal.NewFromInt(x), decimal.NewFromInt(y)}
 
 }
 
@@ -92,69 +94,40 @@ func (d Day13) Parse(lines []string) game {
 	return mList
 }
 
-type sol struct {
-	nbA int64
-	nbB int64
+func (m machine) getNb() decimal.Decimal {
+	return m.p.y.Sub(m.p.x.Mul(m.a.y).Div(m.a.x)).Div(m.b.y.Sub(m.b.x.Mul(m.a.y).Div(m.a.x)))
 }
 
-func (s sol) value() int64 {
-	return s.nbA*3 + s.nbB
+func (m machine) getNa() decimal.Decimal {
+	nB := m.getNb()
+	return m.p.x.Sub(nB.Mul(m.b.x)).Div(m.a.x)
 }
 
-func (s1 sol) Compare(s2 sol) int {
-	val1 := s1.value()
-	val2 := s2.value()
-
-	if val1 < val2 {
-		return -1
-	} else if val1 > val2 {
-		return 1
-	} else {
-		return 0
-	}
+func epsilonEqual(d1, d2, e decimal.Decimal) bool {
+	return d1.Sub(d2).Abs().LessThanOrEqual(e)
 }
 
-func (m machine) getPos(nbA, nbB int64) (int64, int64) {
-	nbX := nbA*m.a.x + nbB*m.b.x
-	nbY := nbA*m.a.y + nbB*m.b.y
+var curEpsilon = decimal.NewFromFloat(1e-4)
 
-	return nbX, nbY
-}
+func (m machine) getMin(debug bool) (int64, int64, bool) {
+	nA := m.getNa()
+	nB := m.getNb()
+	roundedNA := nA.Round(0)
+	roundedNB := nB.Round(0)
 
-func (m machine) solve(debug bool, nbA, nbB int64) []sol {
-	if debug && nbA == 80 {
-		fmt.Println("Try nbA:", nbA, ", nbB:", nbB)
-	}
-	if nbA > 100 || nbB > 100 {
-		return []sol{}
-	}
-
-	nbX, nbY := m.getPos(nbA, nbB)
-	if nbX == m.p.x && nbY == m.p.y {
-		return []sol{{nbA, nbB}}
-	} else if nbX > m.p.x && nbY > m.p.y {
-		return []sol{}
-	}
-
-	sols1 := m.solve(debug, nbA+1, nbB)
-	sols2 := m.solve(debug, nbA, nbB+1)
-	return append(sols1, sols2...)
-}
-
-func (m machine) getMin(debug bool) int64 {
-	sols := m.solve(debug, 0, 0)
-	if len(sols) == 0 {
-		return 0
-	}
-
-	var min int64 = sols[0].value()
-	for _, sol := range sols[1:] {
-		if sol.value() < min {
-			min = sol.value()
+	if !epsilonEqual(nA, roundedNA, curEpsilon) {
+		if debug {
+			fmt.Println("nA is not an integer :", nA)
 		}
+		return -1, -1, false
+	} else if !epsilonEqual(nB, roundedNB, curEpsilon) {
+		if debug {
+			fmt.Println("nB is not an integer :", nB)
+		}
+		return -1, -1, false
 	}
 
-	return min
+	return roundedNA.IntPart(), roundedNB.IntPart(), true
 }
 
 func (d Day13) Part1(debug bool, input game) (sum int64) {
@@ -163,11 +136,51 @@ func (d Day13) Part1(debug bool, input game) (sum int64) {
 		if debug {
 			fmt.Println("Process machine", i+1, "/", len(input))
 		}
-		sum += m.getMin(debug)
+		nA, nB, ok := m.getMin(debug)
+		if !ok {
+			continue
+		} else if nA > 100 || nB > 100 {
+			continue
+		} else {
+			sum += 3*nA + nB
+		}
 	}
 	return
 }
 
-func (d Day13) Part2(debug bool, input game) int64 {
-	return 0
+var toAdd = decimal.NewFromInt(10000000000000)
+
+func (m machine) copy() machine {
+	newM := machine{}
+	newM.a = m.a
+	newM.b = m.b
+	newM.p = price{m.p.x.Add(toAdd), m.p.y.Add(toAdd)}
+	return newM
+}
+
+func (input game) transformInput() game {
+	tInput := make(game, 0, len(input))
+
+	for _, m := range input {
+		tInput = append(tInput, m.copy())
+	}
+
+	return tInput
+}
+
+func (d Day13) Part2(debug bool, input game) (sum int64) {
+	tInput := input.transformInput()
+	sum = 0
+	for i, m := range tInput {
+		if debug {
+			fmt.Println("Process machine", i+1, "/", len(tInput))
+		}
+		nA, nB, ok := m.getMin(debug)
+		if !ok {
+			continue
+		} else {
+			sum += 3*nA + nB
+		}
+	}
+	return
 }
