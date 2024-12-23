@@ -7,7 +7,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type position = utils.Position
@@ -157,19 +156,110 @@ func (d Day14) Part1(debug bool, m matrix) int64 {
 	return countTopLeft * countTopRight * countBottomLeft * countBottomRight
 }
 
-func (d Day14) Part2(debug bool, m matrix) int64 {
-	fmt.Println(m)
-	nbSeconds := 1000
+func createConnectedList(posToRMap map[position][]robot, v map[robot]bool, initR robot) []robot {
+	connectedList := make([]robot, 0)
+	queue := make([]robot, 0)
+	queue = append(queue, initR)
+
+	for len(queue) != 0 {
+		curR := queue[0]
+		queue = queue[1:]
+		if v[curR] {
+			continue
+		}
+
+		v[curR] = true
+		connectedList = append(connectedList, curR)
+
+		for _, dir := range utils.WithDiagDirs {
+			nextPos := curR.p.Add(dir)
+
+			l, ok := posToRMap[nextPos]
+			if !ok {
+				continue
+			} else {
+				queue = append(queue, l...)
+			}
+		}
+	}
+
+	return connectedList
+}
+
+func createConnectedLists(posToRMap map[position][]robot) ([][]robot, int) {
+	v := make(map[robot]bool)
+	listOfL := make([][]robot, 0)
+	maxGraphSize := 0
+
+	for _, rList := range posToRMap {
+		for _, r := range rList {
+			if v[r] {
+				continue
+			}
+
+			l := createConnectedList(posToRMap, v, r)
+			if len(l) > maxGraphSize {
+				maxGraphSize = len(l)
+			}
+			listOfL = append(listOfL, l)
+		}
+	}
+
+	return listOfL, maxGraphSize
+}
+
+func (d Day14) Part2(debug bool, m matrix) (bestCandidate int64) {
+	if debug {
+		fmt.Println(m)
+	}
+	nbSeconds := 10000
+	bestCandidate, minLen := 0, 1000000
+	var bestGraphs [][]robot
+	bestMaxGraphSize := 0
 	curM := m
 	for i := 0; i < nbSeconds; i++ {
-		time.Sleep(100 * time.Millisecond)
 		newRobots := make([]robot, 0, len(curM.robots))
+		posToRMap := make(map[position][]robot)
 		for _, r := range curM.robots {
 			newR := r.move(1, curM.height, curM.width)
 			newRobots = append(newRobots, newR)
+
+			l, ok := posToRMap[r.p]
+			if !ok {
+				l = make([]robot, 0, 1)
+			}
+			l = append(l, r)
+			posToRMap[r.p] = l
 		}
+		listOfGraphs, maxGraphSize := createConnectedLists(posToRMap)
+		if len(listOfGraphs) < minLen {
+			minLen = len(listOfGraphs)
+			bestCandidate = int64(i)
+			bestGraphs = listOfGraphs
+			bestMaxGraphSize = maxGraphSize
+		}
+
 		curM = matrix{curM.height, curM.width, newRobots}
-		fmt.Println(curM)
+		if debug {
+			fmt.Println("Current time :", nbSeconds, "seconds")
+			fmt.Println("Number of graphs:", len(listOfGraphs))
+			fmt.Println("Max graph size:", maxGraphSize)
+		}
 	}
-	return 0
+
+	if debug {
+		newRobots := make([]robot, 0, len(m.robots))
+		for _, r := range m.robots {
+			newR := r.move(int(bestCandidate), m.height, m.width)
+			newRobots = append(newRobots, newR)
+		}
+		curM = matrix{m.height, m.width, newRobots}
+
+		fmt.Println(curM)
+		fmt.Println("Best candidate time :", bestCandidate, "seconds")
+		fmt.Println("Best number of graphs:", len(bestGraphs))
+		fmt.Println("Best max graph size:", bestMaxGraphSize)
+	}
+
+	return bestCandidate
 }
