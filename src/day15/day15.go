@@ -16,6 +16,8 @@ const (
 	Robot   block = '@'
 	Wall    block = '#'
 	Box     block = 'O'
+	LBox    block = '['
+	RBox    block = ']'
 	Nothing block = '.'
 )
 
@@ -26,6 +28,24 @@ type game struct {
 	r      position
 	boxSet map[position]bool
 	moves  []direction
+}
+
+func (g game) copy() game {
+	newG := game{}
+	newG.m = g.m.Copy()
+	newG.r = g.r
+
+	newBoxSet := make(map[position]bool)
+	for box := range g.boxSet {
+		newBoxSet[box] = true
+	}
+	newG.boxSet = newBoxSet
+
+	newMoves := make([]direction, 0, len(g.moves))
+	newMoves = append(newMoves, g.moves...)
+	newG.moves = newMoves
+
+	return newG
 }
 
 func parseMoves(line string) []direction {
@@ -167,28 +187,93 @@ func (g *game) apply(move position) {
 	}
 }
 
-func (d Day15) Part1(debug bool, g game) int64 {
-	if debug {
-		fmt.Println(g)
-	}
-	for len(g.moves) != 0 {
-		curMove := g.moves[0]
-		newMoves := g.moves[1:]
-		g.moves = newMoves
-
-		g.apply(curMove)
-		if debug {
-			fmt.Println(g)
-		}
-	}
-
+func (g game) getRes() int64 {
 	sum := 0
 	for box := range g.boxSet {
 		sum += box.X + 100*box.Y
 	}
+
 	return int64(sum)
 }
 
+func (d Day15) Part1(debug bool, g game) int64 {
+	copiedG := g.copy()
+	if debug {
+		fmt.Println(copiedG)
+	}
+	for len(g.moves) != 0 {
+		curMove := copiedG.moves[0]
+		newMoves := copiedG.moves[1:]
+		copiedG.moves = newMoves
+
+		copiedG.apply(curMove)
+		if debug {
+			fmt.Println(copiedG)
+		}
+	}
+
+	return copiedG.getRes()
+}
+
+func transformPos(pos position) position {
+	return position{X: pos.X * 2, Y: pos.Y}
+}
+
+func (g game) transformPart2() game {
+	newTG := game{}
+
+	newM := make(utils.Grid[block], 0, len(g.m))
+	for _, row := range g.m {
+		newRow := make([]block, 0)
+		for _, val := range row {
+			switch val {
+			case Nothing, Wall:
+				newRow = append(newRow, val)
+				newRow = append(newRow, val)
+			case Box:
+				newRow = append(newRow, LBox)
+				newRow = append(newRow, RBox)
+			case Robot:
+				newRow = append(newRow, Robot)
+				newRow = append(newRow, Nothing)
+			default:
+			}
+		}
+		newM = append(newM, newRow)
+	}
+	newTG.m = newM
+
+	newTG.r = transformPos(g.r)
+
+	newBoxSet := make(map[position]bool)
+	for pos := range g.boxSet {
+		newPos := transformPos(pos)
+		newBoxSet[newPos] = true
+	}
+	newTG.boxSet = newBoxSet
+
+	newMoves := make([]direction, 0, len(g.moves))
+	newMoves = append(newMoves, g.moves...)
+	newTG.moves = newMoves
+
+	return newTG
+}
+
 func (d Day15) Part2(debug bool, g game) int64 {
-	return 0
+	tG := g.transformPart2()
+	if debug {
+		fmt.Println(tG)
+		return 0
+	}
+	for len(g.moves) != 0 {
+		//curMove := tG.moves[0]
+		newMoves := tG.moves[1:]
+		tG.moves = newMoves
+
+		//tG.applyV2(curMove)
+		if debug {
+			fmt.Println(tG)
+		}
+	}
+	return tG.getRes()
 }

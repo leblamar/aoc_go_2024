@@ -70,3 +70,14 @@ func ParseGrid[T any](lines []string, subParse ParseRune[T]) (matrix Grid[T]) {
 
 	return
 }
+
+func (g Grid[T]) Copy() Grid[T] {
+	newG := make(Grid[T], 0, g.Height())
+	for _, row := range g {
+		newRow := make(Row[T], 0, g.Width())
+		newRow = append(newRow, row...)
+		newG = append(newG, newRow)
+	}
+
+	return newG
+}
