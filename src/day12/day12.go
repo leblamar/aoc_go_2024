@@ -16,12 +16,12 @@ type perimeterCells = map[perimeterCell]bool
 
 type Day12 struct{}
 
-func subParse(val rune) (rune, error) {
+func subParse(pos position, val rune) (rune, error) {
 	return val, nil
 }
 
 func (d Day12) Parse(lines []string) grid {
-	return utils.Parse(lines, subParse)
+	return utils.ParseGrid(lines, subParse)
 }
 
 func solvePlant(input grid, allV visited, pCells perimeterCells, curPos position) int64 {

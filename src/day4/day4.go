@@ -7,12 +7,12 @@ import (
 type grid = utils.Grid[rune]
 type Day4 struct{}
 
-func subParse(val rune) (rune, error) {
+func subParse(pos utils.Position, val rune) (rune, error) {
 	return val, nil
 }
 
 func (d Day4) Parse(lines []string) grid {
-	return utils.Parse(lines, subParse)
+	return utils.ParseGrid(lines, subParse)
 }
 
 type xmas struct {

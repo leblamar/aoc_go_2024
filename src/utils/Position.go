@@ -1,6 +1,9 @@
 package utils
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+)
 
 type Position struct {
 	X int
@@ -40,6 +43,25 @@ func (p Position) Inside(matrix [][]int) bool {
 	}
 
 	return p.X < len(matrix) && p.Y < len(matrix[0])
+}
+
+var cardinalToPosMap = map[rune]Position{'<': {-1, 0}, '^': {0, -1}, '>': {1, 0}, 'v': {0, 1}}
+var dirToStringMap = map[Position]rune{{-1, 0}: '<', {0, -1}: '^', {1, 0}: '>', {0, 1}: 'v'}
+
+func (d Position) ToRune() (rune, error) {
+	dir, ok := dirToStringMap[d]
+	if !ok {
+		return dir, errors.New("you passed an unrecognized direction")
+	}
+	return dir, nil
+}
+
+func ParseDir(r rune) (Position, error) {
+	dir, ok := cardinalToPosMap[r]
+	if !ok {
+		return dir, errors.New("you passed an unrecognized direction")
+	}
+	return dir, nil
 }
 
 var CardinalDirs = []Position{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}

@@ -26,7 +26,16 @@ func (g Grid[T]) Get(p Position) (val T, ok bool) {
 		var defaultValue T
 		return defaultValue, false
 	} else {
-		return g[p.X][p.Y], true
+		return g[p.Y][p.X], true
+	}
+}
+
+func (g Grid[T]) Set(p Position, val T) bool {
+	if !g.IsInside(p) {
+		return false
+	} else {
+		g[p.Y][p.X] = val
+		return true
 	}
 }
 
@@ -41,13 +50,13 @@ func (g Grid[T]) Width() int {
 	return len(g[0])
 }
 
-func Parse[T any](lines []string, subParse ParseRune[T]) (matrix Grid[T]) {
+func ParseGrid[T any](lines []string, subParse ParseRune[T]) (matrix Grid[T]) {
 	matrix = make(Grid[T], 0, len(lines))
-	for _, line := range lines {
+	for j, line := range lines {
 		row := make(Row[T], 0, len(line))
 
-		for _, elem := range line {
-			val, err := subParse(elem)
+		for i, elem := range line {
+			val, err := subParse(Position{i, j}, elem)
 			if err != nil {
 				log.Fatal(err)
 				continue
